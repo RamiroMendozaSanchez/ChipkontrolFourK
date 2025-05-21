@@ -29,8 +29,8 @@ def consultar_unidades(auth: AuthRequest):
     unidades = cliente.get("unidades", [])
 
     # Si se proporciona una ID de unidad específica
-    if auth.id:
-        unidad = next((u for u in unidades if u["id"] == auth.id), None)
+    if auth.placa:
+        unidad = next((u for u in unidades if u["matricula"] == auth.placa), None)
         if not unidad:
             raise HTTPException(status_code=404, detail="Unidad no encontrada")
         return [unidad]

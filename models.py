@@ -5,7 +5,7 @@ from typing import List,Optional
 class AuthRequest(BaseModel):
     cliente_id: str
     token_encriptado: str
-    id: Optional[str] = None
+    placa: Optional[str] = None
 
 class TokenExterno(BaseModel):
     clienteExterno: str
@@ -21,6 +21,7 @@ class Unidad(BaseModel):
     longitud: float
     latitud: float
     fecha: str # ISO 8601
+    matricula: str
 
 class Cliente(BaseModel):
     id: str

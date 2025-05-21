@@ -2,7 +2,7 @@ import requests
 from datetime import datetime, timedelta
 import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
-
+import unicodedata
 from db import clientes_collection
 
 
@@ -11,6 +11,9 @@ _sid_cache = {}
 
 # Tiempo de expiración Wialon: 5 minutos de inactividad (según docs)
 SID_EXPIRACION_MINUTOS = 5
+
+def normalize_text(text):
+    return unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode().lower()
 
 
 def obtener_sid(token: str) -> str:
@@ -68,11 +71,20 @@ def obtener_datos_unidad(sid: str, uid: int) -> dict | None:
         if not item or "pos" not in item:
             return None
 
+        matricula = ""
+        if "flds" in item and isinstance(item["flds"], dict):
+            for value in item["flds"].values():
+                nombre_campo = value.get("n", "")
+                if normalize_text(nombre_campo) == "matricula":
+                    matricula = value.get("v", "")
+                    break
+
         return {
             "id": str(item["id"]),
             "longitud": item["pos"]["x"],
             "latitud": item["pos"]["y"],
-            "fecha": datetime.utcfromtimestamp(item["pos"]["t"]).isoformat()
+            "fecha": datetime.utcfromtimestamp(item["pos"]["t"]).isoformat(),
+            "matricula": matricula
         }
     except Exception:
         # Puedes agregar aquí logging para errores
